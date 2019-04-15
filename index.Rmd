@@ -103,6 +103,15 @@ error<-1 - as.numeric(confusionMatrix(test_data$classe, predict_RandomForest)$ov
 error
 ```
 
+#Decision Tree plot
+
+The model we are using is random forest, which is not a single decision tree, but an ensemble of a large number of trees. 
+Plotting the final model will plot the error rates on the training and test datasets as a number of trees are increased, something like the following.
+
+```{r}
+plot(RandomForest$finalModel)
+```
+
 #Predicting Results on the Test Data
 
 ```{r}
