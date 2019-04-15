@@ -75,7 +75,7 @@ train_data <- trainM[inTrain, ]
 test_data <- trainM[-inTrain, ]
 ```
 
-# Modelling using Random Forest and Cross Validation for tuning parameter
+#Modelling using Random Forest and Cross Validation for tuning parameter
 
 ```{r}
 setting <- trainControl(method="cv", 5)
@@ -83,8 +83,15 @@ RandomForest <- train(classe ~ ., data=train_data, method="rf", trControl=settin
 RandomForest
 ```
 
+#Variable Importance - plot top 20 features 
 
-# Data Prediction / Accuracy / Error
+```{r}
+gbmImp <- varImp(RandomForest, scale = FALSE)
+gbmImp
+plot(gbmImp, top = 20)
+```
+
+#Data Prediction / Accuracy / Error
 
 ```{r}
 predict_RandomForest <- predict(RandomForest, test_data)
@@ -96,7 +103,8 @@ error<-1 - as.numeric(confusionMatrix(test_data$classe, predict_RandomForest)$ov
 error
 ```
 
-# Predicting Results on the Test Data
+#Predicting Results on the Test Data
+
 ```{r}
 predict_RandomForest_TEST <- predict(RandomForest, test)
 predict_RandomForest_TEST
