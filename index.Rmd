@@ -1,0 +1,103 @@
+---
+title: "Practical Machine Learning -  Prediction Assignment"
+author: "Alexandra Trampeli"
+date: "4/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Background
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here (see the section on the Weight Lifting Exercise Dataset).
+
+#Loading and Processing the Raw Data
+The data for this project come from this source
+
+The training data for this project are available here:
+
+<https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv>
+
+The test data are available here:
+
+<https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv>
+
+
+#Goal
+The goal of your project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. 
+Any of the other variables used to predict with. 
+
+1. create a report describing how you built your model, 
+2. how cross validation used, 
+3. what the expected out of sample error is, and 
+4. why the choices made
+5. use a prediction model to predict 20 different test cases
+
+#Read data
+
+```{r}
+rm( list=ls() )
+
+library(data.table)
+library(caret)
+setwd("/mapr/mapre04p/analytics0001/analytic_users/uocix/cc")
+train<- read.csv("pml-training.csv")
+test<- read.csv("pml-testing.csv")
+dim(train)
+dim(test)
+```
+
+
+#Remove columns with missing values.
+
+```{r}
+train <- train[, colSums(is.na(train)) == 0] 
+test <- test[, colSums(is.na(test)) == 0] 
+classe <- train$classe
+trainR <- grepl("^X|timestamp|window|user_name", names(train))
+train <- train[, !trainR]
+trainM <- train[, sapply(train, is.numeric)]
+trainM$classe <- classe
+testR <- grepl("^X|timestamp|window|user_name", names(test))
+test<- test[, !testR]
+testM <- test[, sapply(test, is.numeric)]
+```
+
+#Training data split 
+70% for train data and 30% for test data as this will be used for cross validation purpose
+
+```{r}
+set.seed(66666) 
+inTrain <- createDataPartition(trainM$classe, p=0.70, list=F)
+train_data <- trainM[inTrain, ]
+test_data <- trainM[-inTrain, ]
+```
+
+# Modelling using Random Forest and Cross Validation for tuning parameter
+
+```{r}
+setting <- trainControl(method="cv", 5)
+RandomForest <- train(classe ~ ., data=train_data, method="rf", trControl=setting, ntree=100)
+RandomForest
+```
+
+
+# Data Prediction / Accuracy / Error
+
+```{r}
+predict_RandomForest <- predict(RandomForest, test_data)
+confusionMatrix(test_data$classe, predict_RandomForest)
+
+accuracy <- postResample(predict_RandomForest, test_data$classe)
+accuracy
+error<-1 - as.numeric(confusionMatrix(test_data$classe, predict_RandomForest)$overall[1])
+error
+```
+
+# Predicting Results on the Test Data
+```{r}
+predict_RandomForest_TEST <- predict(RandomForest, test)
+predict_RandomForest_TEST
+```
