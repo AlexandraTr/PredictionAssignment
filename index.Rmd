@@ -1,6 +1,6 @@
 ---
 title: "Practical Machine Learning -  Prediction Assignment"
-author: "Alexandra Trampeli"
+author: "Alexandra Tram"
 date: "4/15/2019"
 output: html_document
 ---
@@ -50,7 +50,7 @@ dim(test)
 ```
 
 
-#Remove columns with missing values.
+#Remove columns with missing values
 
 ```{r}
 train <- train[, colSums(is.na(train)) == 0] 
